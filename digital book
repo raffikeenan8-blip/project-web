@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixcean - Digital Ocean Book</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(180deg, #87CEEB 0%, #98D8E8 30%, #B0E0E6 70%, #E0F6FF 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding-bottom: 150px;
+        }
+
+        /* Efek Ombak */
+        .waves {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            z-index: 1;
+        }
+        .wave { position: absolute; left: 0; width: 200%; height: 100%; background-repeat: repeat; background-position: 0 bottom; }
+        .wave1 { background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDBweCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCw0MGgxMDB2NjBIMHoiIGZpbGw9InJnYmEoMjQsMTEyLDIwOCwwLjUpIi8+PC9zdmc+'); animation: wave 15s linear infinite; }
+        .wave2 { background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDBweCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCw0NWgxMDB2NTVIMHoiIGZpbGw9InJnYmEoMjQsMTEyLDIwOCwwLjcpIi8+PC9zdmc+'); animation: wave 20s linear infinite reverse; }
+        .wave3 { background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDBweCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCw1MGgxMDB2NTBIMHoiIGZpbGw9InJnYmEoMjQsMTEyLDIwOCwwLjgpIi8+PC9zdmc+'); animation: wave 25s linear infinite; }
+        @keyframes wave { 0%,100% { transform: translateX(0) scaleY(1); } 50% { transform: translateX(-25%) scaleY(0.55); } }
+
+        /* Header - JUDUL DIJADIKAN NORMAL TANPA BAYANGAN */
+        .header {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(20px);
+            padding: 20px 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(0,191,255,0.4);
+            border: 2px solid rgba(0,191,255,0.3);
+        }
+        .logo {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #1E90FF; /* Warna solid biru */
+            text-align: center;
+            letter-spacing: 2px;
+            /* HAPUS SEMUA EFEK BAYANGAN DAN GRADIENT */
+        }
+
+        /* Book Container */
+        .book-container {
+            max-width: 900px;
+            margin: 120px auto 200px;
+            perspective: 2000px;
+        }
+
+        /* Digital Book */
+        .digital-book {
+            position: relative;
+            width: 100%;
+            height: 650px;
+            transform-style: preserve-3d;
+            transition: transform 0.8s;
+        }
+
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #f8f9ff, #e8f4fd);
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.1),
+                inset 0 0 20px rgba(255,255,255,0.8);
+            border-radius: 15px;
+            padding: 40px;
+            backface-visibility: hidden;
+            transform-origin: left center;
+            transform: rotateY(0deg);
+            opacity: 1;
+            overflow-y: auto;
+        }
+
+        .page.active { z-index: 10; }
+        .page.flipped { transform: rotateY(-180deg); opacity: 0; z-index: 5; }
+
+        /* Page Content */
+        .page-content {
+            display: flex;
+            gap: 30px;
+            height: 100%;
+            align-items: flex-start;
+        }
+
+        .photo-section {
+            flex: 0 0 280px;
+            height: 420px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,191,255,0.3);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .photo-section:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(0,191,255,0.5);
+        }
+
+        .photo-section img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #666;
+            font-size: 1.1rem;
+            border: 3px dashed #00BFFF;
+            background: rgba(135,206,235,0.2);
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .photo-placeholder:hover {
+            background: rgba(135,206,235,0.4);
+            color: #1E90FF;
+        }
+
+        .form-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .form-label {
+            font-weight: bold;
+            color: #1E3A8A;
+            min-width: 80px;
+            font-size: 1.1rem;
+            padding-top: 8px;
+        }
+
+        .form-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #00BFFF;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1E90FF;
+            box-shadow: 0 0 0 3px rgba(30,144,255,0.2);
+            background: white;
+        }
+
+        .kesan-section {
+            margin-top: auto;
+        }
+
+        .kesan-label {
+            font-weight: bold;
+            color: #1E3A8A;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .kesan-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #00BFFF;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        /* Navigation - Paling bawah tengah */
+        .book-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 25px;
+            align-items: center;
+            z-index: 100;
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(20px);
+            padding: 25px 50px;
+            border-radius: 50px;
+            box-shadow: 0 20px 60px rgba(0,191,255,0.4);
+            border: 3px solid rgba(0,191,255,0.3);
+        }
+
+        .nav-btn {
+            padding: 18px 35px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            background: linear-gradient(45deg, #00BFFF, #1E90FF);
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,191,255,0.5);
+            font-family: inherit;
+            min-width: 160px;
+        }
+
+        .nav-btn:hover:not(:disabled) { 
+            transform: translateY(-5px) scale(1.05); 
+            box-shadow: 0 15px 45px rgba(0,191,255,0.7); 
+        }
+
+        .nav-btn:disabled { 
+            opacity: 0.6; 
+            cursor: not-allowed; 
+            transform: none; 
+            background: #ccc;
+        }
+
+        .page-info {
+            font-size: 1.4rem;
+            color: #1E3A8A;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        /* Lumba-lumba */
+        .dolphins { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+        .dolphin { position: absolute; font-size: 1.8rem; animation: swim 12s linear infinite; }
+        .dolphin1 { top: 100px; left: -100px; }
+        .dolphin2 { top: 150px; left: -150px; animation-delay: 4s; }
+
+        @keyframes swim { 0% { transform: translateX(-100px); } 100% { transform: translateX(110vw); } }
+
+        @media (max-width: 768px) {
+            .header { left: 20px; transform: none; padding: 15px 25px; }
+            .logo { font-size: 2.2rem; }
+            .digital-book { height: 550px; }
+            .book-container { margin: 100px auto 180px; }
+            .page-content { flex-direction: column; gap: 20px; }
+            .photo-section { height: 250px; flex: none; }
+            .book-nav { 
+                flex-direction: column; 
+                gap: 15px;
+                padding: 30px 25px;
+                bottom: 10px;
+            }
+            .nav-btn { min-width: 140px; padding: 15px 25px; font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header - JUDUL SIMPEL & JELAS -->
+    <div class="header">
+        <div class="logo">bixcean</div>
+    </div>
+
+    <!-- Waves -->
+    <div class="waves">
+        <div class="wave wave1"></div>
+        <div class="wave wave2"></div>
+        <div class="wave wave3"></div>
+    </div>
+
+    
+    <!-- Book -->
+    <div class="book-container">
+        <div class="digital-book" id="digitalBook">
+            <div class="page active" data-page="1">
+                <div class="page-content">
+                    <div class="photo-section" onclick="uploadPhoto(0)">
+                        <div class="photo-placeholder">
+                            <div>📸</div>
+                            <div>Klik untuk upload</div>
+                            <div>Foto 4x6</div>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <div class="form-group">
+                            <div class="form-label">Nama:</div>
+                            <input type="text" class="form-input" placeholder="Masukkan nama lengkap">
+                        </div>
+                        <div class="form-group">
+                            <div class="form-label">TTL:</div>
+                            <input type="text" class="form-input" placeholder="Tanggal tempat lahir">
+                        </div>
+                        <div class="form-group">
+                            <div class="form-label">Hobi:</div>
+                            <input type="text" class="form-input" placeholder="Diving, snorkeling, dll">
+                        </div>
+                        <div class="form-group">
+                            <div class="form-label">No HP:</div>
+                            <input type="tel" class="form-input" placeholder="08xxxxxxxxx">
+                        </div>
+                        <div class="form-group">
+                            <div class="form-label">Social:</div>
+                            <input type="text" class="form-input" placeholder="@instagram / @tiktok">
+                        </div>
+                        <div class="kesan-section">
+                            <div class="kesan-label">Kesan Pesan:</div>
+                            <textarea class="kesan-textarea" placeholder="Tulis kesan & pesan tentang laut... 🌊"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation paling bawah tengah -->
+    <div class="book-nav">
+        <button class="nav-btn" id="prevBtn" onclick="prevPage()">← Sebelumnya</button>
+        <div class="page-info" id="pageInfo">Halaman 1 / 24</div>
+        <button class="nav-btn" id="nextBtn" onclick="nextPage()">Selanjutnya →</button>
+    </div>
+
+    <script>
+        const totalPages = 24;
+        let currentPage = 0;
+        let pagePhotos = new Array(totalPages).fill(null);
+
+        // Generate 24 pages
+        const book = document.getElementById('digitalBook');
+        for (let i = 1; i < totalPages; i++) {
+            const page = document.createElement('div');
+            page.className = 'page';
+            page.dataset.page = i + 1;
+            page.innerHTML = `
+                <div class="page-content">
+                    <div class="photo-section" onclick="uploadPhoto(${i})">
+                        <div class="photo-placeholder">
+                            <div>📸</div>
+                            <div>Klik untuk upload</div>
+                            <div>Foto 4x6 - Hal ${i+1}</div>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <div class="form-group"><div class="form-label">Nama:</div><input type="text" class="form-input" placeholder="Masukkan nama lengkap"></div>
+                        <div class="form-group"><div class="form-label">TTL:</div><input type="text" class="form-input" placeholder="Tanggal tempat lahir"></div>
+                        <div class="form-group"><div class="form-label">Hobi:</div><input type="text" class="form-input" placeholder="Diving, snorkeling, dll"></div>
+                        <div class="form-group"><div class="form-label">No HP:</div><input type="tel" class="form-input" placeholder="08xxxxxxxxx"></div>
+                        <div class="form-group"><div class="form-label">Social:</div><input type="text" class="form-input" placeholder="@instagram / @tiktok"></div>
+                        <div class="kesan-section">
+                            <div class="kesan-label">Kesan Pesan:</div>
+                            <textarea class="kesan-textarea" placeholder="Tulis kesan & pesan tentang laut... 🌊"></textarea>
+                        </div>
+                    </div>
+                </div>
+            `;
+            book.appendChild(page);
+        }
+
+        function uploadPhoto(pageIndex) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = ev => {
+                        pagePhotos[pageIndex] = ev.target.result;
+                        updatePhoto(pageIndex);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        }
+
+        function updatePhoto(pageIndex) {
+            const photoSections = document.querySelectorAll('.photo-section');
+            if (photoSections[pageIndex]) {
+                const placeholder = photoSections[pageIndex].querySelector('.photo-placeholder');
+                if (placeholder && pagePhotos[pageIndex]) {
+                    placeholder.outerHTML = `<img src="${pagePhotos[pageIndex]}" alt="Foto Halaman ${pageIndex + 1}">`;
+                }
+            }
+        }
+
+        function showPage(pageNum) {
+            document.querySelectorAll('.page').forEach((page, index) => {
+                if (index < pageNum) {
+                    page.classList.add('flipped');
+                    page.classList.remove('active');
+                } else if (index === pageNum) {
+                    page.classList.add('active');
+                    page.classList.remove('flipped');
+                } else {
+                    page.classList.remove('active', 'flipped');
+                }
+            });
+            document.getElementById('pageInfo').textContent = `Halaman ${pageNum + 1} / ${totalPages}`;
+            updatePhoto(pageNum);
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                showPage(currentPage);
+                updateButtons();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                showPage(currentPage);
+                updateButtons();
+            }
+        }
+
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentPage === 0;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages - 1;
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowRight' || e.key === 'PageDown') nextPage();
+            if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevPage();
+        });
+
+        showPage(0);
+        updateButtons();
+    </script>
+</body>
+</html>
